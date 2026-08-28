@@ -8,10 +8,14 @@ async function start() {
   try {
     await app.listen({
       port: env.PORT,
-      host: env.HOST
     });
 
-    app.log.info(`Server listening on http://${env.HOST}:${env.PORT}`);
+
+    const addressInfo = app.server.address();
+    if (addressInfo && typeof addressInfo === 'object') {
+      app.log.info(`Server listening on http://${addressInfo.address}:${env.PORT}`);
+    }
+
   } catch (error) {
     app.log.error(error, 'Failed to start server');
     await closeDb();

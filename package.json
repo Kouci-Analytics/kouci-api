@@ -17,7 +17,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=24 <25"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
