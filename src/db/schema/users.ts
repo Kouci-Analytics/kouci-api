@@ -16,3 +16,9 @@ export const club = pgTable('club', {
   createdAt: text('created_at').notNull(),
 });
 
+export const wishlist = pgTable('wishlist', {
+  uuid: uuid('uuid').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  email: text('email').notNull(),
+  createdAt: text('created_at').notNull(),
+});
