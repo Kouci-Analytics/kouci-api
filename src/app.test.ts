@@ -1,9 +1,7 @@
 import { beforeAll, afterAll, describe, expect, it } from 'vitest';
-import { buildApp } from './app.js';
+import app from './app.js';
 
 describe('buildApp', () => {
-  const app = buildApp();
-
   beforeAll(async () => {
     await app.ready();
   });

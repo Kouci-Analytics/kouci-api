@@ -54,8 +54,8 @@ curl http://localhost:3000/health
 npm run test
 ```
 
-## Project structure
-
+<!-- ## Project structure -->
+<!-- 
 ```text
 src/
 ├── modules/
@@ -80,7 +80,7 @@ src/
 ├── config/
 ├── app.ts
 └── server.ts
-```
+``` -->
 
 ## Scripts
 
