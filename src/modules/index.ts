@@ -7,6 +7,7 @@ import { syncRoutes } from './sync/sync.routes.js';
 import { telemetryRoutes } from './telemetry/telemetry.routes.js';
 import { playersRoutes } from './players/players.routes.js';
 import { matchesRoutes } from './matches/matches.routes.js';
+import { wishlistRoutes } from './wishlist/wishlist.routes.js';
 
 export async function registerModules(app: FastifyInstance): Promise<void> {
   await app.register(authRoutes, { prefix: '/auth' });
@@ -17,4 +18,5 @@ export async function registerModules(app: FastifyInstance): Promise<void> {
   await app.register(telemetryRoutes, { prefix: '/telemetry' });
   await app.register(playersRoutes, { prefix: '/players' });
   await app.register(matchesRoutes, { prefix: '/matches' });
+  await app.register(wishlistRoutes, { prefix: '/wishlist' });
 }
