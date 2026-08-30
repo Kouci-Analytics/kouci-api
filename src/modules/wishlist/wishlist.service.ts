@@ -4,6 +4,10 @@ import type { CreateWishlistInput, WishlistEntry } from './wishlist.types.js';
 export class WishlistService {
   constructor(private readonly repository = new WishlistRepository()) {}
 
+  count(): Promise<number> {
+    return this.repository.count();
+  }
+
   create(input: CreateWishlistInput): Promise<WishlistEntry> {
     return this.repository.create(input);
   }

@@ -1,5 +1,6 @@
 import Fastify, { type FastifyInstance } from 'fastify';
 import { registerModules } from './modules/index.js';
+import { registerCors } from './plugins/cors.js';
 import { registerErrorHandler } from './plugins/error-handler.js';
 
 export function getFastifyOptions() {
@@ -11,6 +12,8 @@ export function getFastifyOptions() {
 }
 
 export function configureApp(app: FastifyInstance) {
+  registerCors(app);
+
   app.get('/health', async () => ({ status: 'ok' }));
 
   void app.register(registerModules);

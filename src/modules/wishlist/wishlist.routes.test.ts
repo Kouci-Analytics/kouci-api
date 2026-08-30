@@ -6,6 +6,7 @@ import { createWishlistRoutes } from './wishlist.routes.js';
 
 describe('wishlist routes', () => {
   const apps: ReturnType<typeof Fastify>[] = [];
+  const count = vi.fn().mockResolvedValue(0);
 
   afterEach(async () => {
     await Promise.all(apps.splice(0).map((app) => app.close()));
@@ -21,7 +22,7 @@ describe('wishlist routes', () => {
     const app = Fastify();
     apps.push(app);
     registerErrorHandler(app);
-    await app.register(createWishlistRoutes({ create }), {
+    await app.register(createWishlistRoutes({ count, create }), {
       prefix: '/wishlist'
     });
 
@@ -55,7 +56,7 @@ describe('wishlist routes', () => {
     const create = vi.fn();
     const app = Fastify();
     apps.push(app);
-    await app.register(createWishlistRoutes({ create }), {
+    await app.register(createWishlistRoutes({ count, create }), {
       prefix: '/wishlist'
     });
 
@@ -77,7 +78,7 @@ describe('wishlist routes', () => {
     const app = Fastify();
     apps.push(app);
     registerErrorHandler(app);
-    await app.register(createWishlistRoutes({ create }), {
+    await app.register(createWishlistRoutes({ count, create }), {
       prefix: '/wishlist'
     });
 
@@ -111,7 +112,7 @@ describe('wishlist routes', () => {
     const app = Fastify();
     apps.push(app);
     registerErrorHandler(app);
-    await app.register(createWishlistRoutes({ create }), {
+    await app.register(createWishlistRoutes({ count, create }), {
       prefix: '/wishlist'
     });
 
@@ -139,5 +140,28 @@ describe('wishlist routes', () => {
     });
     expect(responses[5]?.headers['retry-after']).toBeDefined();
     expect(create).toHaveBeenCalledTimes(5);
+  });
+
+  it('returns the number of wishlist entries', async () => {
+    const countEntries = vi.fn().mockResolvedValue(42);
+    const create = vi.fn();
+    const app = Fastify();
+    apps.push(app);
+    await app.register(
+      createWishlistRoutes({ count: countEntries, create }),
+      { prefix: '/wishlist' }
+    );
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/wishlist'
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({ count: 42 });
+    expect(response.headers['x-ratelimit-limit']).toBe('300');
+    expect(response.headers['x-ratelimit-remaining']).toBe('299');
+    expect(countEntries).toHaveBeenCalledOnce();
+    expect(create).not.toHaveBeenCalled();
   });
 });
