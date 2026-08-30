@@ -1,8 +1,9 @@
+import Fastify from 'fastify';
 import { env } from './config/env.js';
 import { closeDb } from './db/index.js';
-import { buildApp } from './create-app.js';
+import { configureApp, getFastifyOptions } from './create-app.js';
 
-const app = buildApp();
+const app = configureApp(Fastify(getFastifyOptions()));
 
 async function start() {
   try {
