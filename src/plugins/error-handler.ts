@@ -10,6 +10,20 @@ export function registerErrorHandler(app: FastifyInstance): void {
       return;
     }
 
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'statusCode' in error &&
+      error.statusCode === 429
+    ) {
+      const message =
+        'message' in error && typeof error.message === 'string'
+          ? error.message
+          : 'Too many requests. Please try again later.';
+      void reply.status(429).send({ message });
+      return;
+    }
+
     void reply.status(500).send({ message: 'Internal server error' });
   });
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "wishlist" ADD CONSTRAINT "wishlist_email_unique" UNIQUE("email");

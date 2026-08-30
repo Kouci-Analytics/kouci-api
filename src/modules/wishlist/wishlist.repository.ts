@@ -11,6 +11,7 @@ export class WishlistRepository {
         ...input,
         createdAt: new Date().toISOString()
       })
+      .onConflictDoNothing({ target: wishlist.email })
       .returning({
         uuid: wishlist.uuid,
         name: wishlist.name,
@@ -19,7 +20,7 @@ export class WishlistRepository {
       });
 
     if (!entry) {
-      throw new AppError('Unable to create wishlist entry');
+      throw new AppError('Email is already on the wishlist', 409);
     }
 
     return entry;
