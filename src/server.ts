@@ -1,6 +1,8 @@
 import { env } from './config/env.js';
 import { closeDb } from './db/index.js';
-import app from './app.js';
+import { buildApp } from './create-app.js';
+
+const app = buildApp();
 
 async function start() {
   try {
