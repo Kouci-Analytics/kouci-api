@@ -4,7 +4,7 @@ Core backend platform for Kouci, powering synchronization, telemetry, analytics,
 
 ## Prerequisites
 
-- Node.js 20+
+- Node.js 24
 - npm 10+
 - Docker + Docker Compose
 
@@ -32,11 +32,18 @@ docker compose up -d postgres
 ## Run database migrations
 
 ```bash
-npm run db:generate
 npm run db:migrate
 ```
 
 ## Start the development server
+
+Generate backend licensing secrets once before the first start:
+
+```bash
+npm run license:keys
+```
+
+This creates the ignored `.env.license` file and prints the public verification key. Keep an existing key file; the generator refuses to overwrite it.
 
 ```bash
 npm run dev
@@ -47,6 +54,12 @@ Health check:
 ```bash
 curl http://localhost:3000/health
 ```
+
+## Licensing
+
+See [backend implementation, API contract, administration, and manual feature checks](docs/licensing.md) and the [original TODO with implemented items checked](docs/licensing-todo.md).
+
+Apply the committed migrations with `npm run db:migrate` on a fresh database. Existing databases without migration history need their current schema baselined first. Use `db:generate` only when introducing further schema changes.
 
 ## Run tests
 
