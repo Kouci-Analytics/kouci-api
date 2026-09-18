@@ -104,6 +104,8 @@ export class LicensesRepository {
         .from(licenses)
         .where(eq(licenses.codeHash, codeHash))
         .for('update');
+
+
       if (!license)
         throw new LicenseError(
           'INVALID_LICENSE',
@@ -132,6 +134,8 @@ export class LicensesRepository {
           403
         );
       }
+      
+
       const [existing] = await tx
         .select({ id: activations.id })
         .from(activations)
@@ -152,6 +156,7 @@ export class LicensesRepository {
           .select({ count: count() })
           .from(activations)
           .where(eq(activations.licenseId, license.id));
+
         if (usage.count >= license.maxActivations) {
           throw new LicenseError(
             'DEVICE_LIMIT',
@@ -159,6 +164,7 @@ export class LicensesRepository {
             409
           );
         }
+        
         await tx.insert(activations).values({
           licenseId: license.id,
           installIdHash,

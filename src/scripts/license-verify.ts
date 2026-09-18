@@ -16,19 +16,25 @@ async function main() {
     strict: true,
     allowPositionals: false
   });
+
+
   if (values.help) {
     console.log(
       'npm run license:verify -- --file response.json --installId UUID [--publicKey BASE64_SPKI_DER]\nChecks the signature, installation binding, and expiration locally. No server or database request.'
     );
     return;
   }
+
   if (!values.file) throw new Error();
+  
   const installId = installIdSchema.parse(values.installId);
   const signed = signedLicenseSchema.parse(
     JSON.parse(readFileSync(values.file, 'utf8'))
   );
+
   const { verifyLicense } =
     await import('../modules/licenses/licenses.crypto.js');
+
   const valid =
     verifyLicense(signed.license, signed.signature, values.publicKey) &&
     signed.license.installId === installId &&

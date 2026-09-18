@@ -175,7 +175,9 @@ npm run license:enable -- --id "$LICENSE_ID"
 
 Each command returns updated license metadata. Enabling explicitly restores ACTIVE even from REVOKED. These commands preserve activation records and expiration, so enabling does not free slots or make an expired license current.
 
-To exercise expiration, create a separate license with `--expiresAt 2020-01-01T00:00:00Z`; activation should return `LICENSE_EXPIRED` and consume no slot. Create another with a future ISO timestamp and verify that successful activation includes that expiry in Unix seconds. A license created without this option should remain non-expiring.
+`--expiresAt` accepts an ISO 8601 timestamp with timezone or non-negative Unix **seconds** through year 9999, such as `--expiresAt 1821275871`. Unix milliseconds are not supported. Invalid options now identify the failing argument, for example `Invalid --expiresAt: ...`.
+
+To exercise expiration, create a separate license with `--expiresAt 2020-01-01T00:00:00Z`; activation should return `LICENSE_EXPIRED` and consume no slot. Create another with a future ISO timestamp or Unix seconds and verify that inspection shows the expected date and successful activation includes that expiry in Unix seconds. A license created without this option should remain non-expiring.
 
 ### 7. Reinstallation and administrative reset
 

@@ -24,7 +24,7 @@ export class LicensesService {
       clubName: input.club,
       plan: input.plan,
       maxPlayers: input.maxPlayers ?? defaults.maxPlayers,
-      maxActivations: input.maxActivations,
+      maxActivations: input.maxActivations ?? 1,
       premiumReports: input.premiumReports ?? defaults.premiumReports,
       developerMode: input.developerMode ?? defaults.developerMode,
       customTheme: input.customTheme ?? defaults.customTheme,

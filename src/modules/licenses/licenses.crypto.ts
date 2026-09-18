@@ -49,7 +49,7 @@ export function hashInstallId(installId: string): string {
 let signingKey: KeyObject | undefined;
 
 /**
- * Get the signing key.
+ * Get the signing key. (Gets the key from LICENSE_SIGNING_PRIVATE_KEY if not already loaded.)
  * @returns {KeyObject} The signing key.
  * @throws {Error} If the signing key is not available.
  */
@@ -86,13 +86,15 @@ export function assertLicenseConfiguration(): void {
 // All payload fields are scalar; consumers must use this exact serialization.
 export function serializeLicense(payload: LicensePayload): string {
   const parsed = licensePayloadSchema.parse(payload);
-  return JSON.stringify(
+  const json = JSON.stringify(
     Object.fromEntries(
       Object.entries(parsed).sort(([left], [right]) =>
         left < right ? -1 : left > right ? 1 : 0
       )
     )
   );
+  console.log('Serialized license payload:', json);
+  return json; 
 }
 
 export function signLicense(payload: LicensePayload): string {
@@ -124,6 +126,8 @@ export function verifyLicense(
       type: 'spki'
     });
     if (key.asymmetricKeyType !== 'ed25519') return false;
+
+    // TODO: Check this null argument. 
     return verify(
       null,
       Buffer.from(serializeLicense(parsed.data), 'utf8'),

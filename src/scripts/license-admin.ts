@@ -11,7 +11,7 @@ const help = `License administration (run from the repository root):
   npm run license:public-key
   npm run license:create -- --club "Vitória SC" --plan MVP_TESTER
     [--maxPlayers 18] [--maxActivations 1] [--premiumReports false]
-    [--developerMode false] [--customTheme false] [--expiresAt ISO_TIMESTAMP]
+    [--developerMode false] [--customTheme false] [--expiresAt ISO_TIMESTAMP_OR_UNIX_SECONDS]
   npm run license:list -- [--limit 100] [--offset 0]
   npm run license:get -- --id UUID
   npm run license:disable -- --id UUID
@@ -20,6 +20,8 @@ const help = `License administration (run from the repository root):
   npm run license:reset-activation -- --id UUID [--installId UUID]
 
 Codes are printed only by create and cannot be retrieved later.
+Expiration accepts an ISO date with timezone or Unix seconds, e.g. 1821275871.
+Omit --expiresAt for a non-expiring license. Milliseconds are not supported.
 Reset without --installId removes ALL activations for the license.
 Status changes and resets affect future activations, not existing offline copies.`;
 
@@ -32,6 +34,19 @@ const positiveInteger = z
   .regex(/^\d+$/)
   .transform(Number)
   .pipe(z.number().int().positive().max(2147483647));
+
+function parseOption<T>(name: string, schema: z.ZodType<T>, value: unknown): T {
+  const parsed = schema.safeParse(value);
+  if (!parsed.success) {
+    throw new z.ZodError(
+      parsed.error.issues.map((issue) => ({
+        ...issue,
+        path: [name, ...issue.path]
+      }))
+    );
+  }
+  return parsed.data;
+}
 
 async function main() {
   const command = process.argv[2];
@@ -67,6 +82,9 @@ async function main() {
     allowPositionals: false
   });
 
+  console.log('Command:', command);
+  console.log('Values:', values);
+
   if (command === 'public-key') {
     const { getLicensePublicKey } =
       await import('../modules/licenses/licenses.crypto.js');
@@ -89,7 +107,9 @@ async function main() {
     const { LicensesService } =
       await import('../modules/licenses/licenses.service.js');
     const service = new LicensesService();
+
     let result: unknown;
+
     if (command === 'create') {
       const input = createLicenseSchema.parse({
         club: values.club,
@@ -97,43 +117,60 @@ async function main() {
         maxPlayers:
           values.maxPlayers === undefined
             ? undefined
-            : positiveInteger.parse(values.maxPlayers),
+            : parseOption('maxPlayers', positiveInteger, values.maxPlayers),
         maxActivations:
           values.maxActivations === undefined
             ? undefined
-            : positiveInteger.parse(values.maxActivations),
+            : parseOption(
+                'maxActivations',
+                positiveInteger,
+                values.maxActivations
+              ),
         premiumReports:
           values.premiumReports === undefined
             ? undefined
-            : booleanValue.parse(values.premiumReports),
+            : parseOption(
+                'premiumReports',
+                booleanValue,
+                values.premiumReports
+              ),
         developerMode:
           values.developerMode === undefined
             ? undefined
-            : booleanValue.parse(values.developerMode),
+            : parseOption('developerMode', booleanValue, values.developerMode),
         customTheme:
           values.customTheme === undefined
             ? undefined
-            : booleanValue.parse(values.customTheme),
+            : parseOption('customTheme', booleanValue, values.customTheme),
         expiresAt: values.expiresAt
       });
+
       result = await service.create(input);
+
     } else if (command === 'list') {
       const limit =
         values.limit === undefined
           ? 100
-          : positiveInteger.pipe(z.number().max(1000)).parse(values.limit);
+          : parseOption(
+              'limit',
+              positiveInteger.pipe(z.number().max(1000)),
+              values.limit
+            );
       const offset =
         values.offset === undefined
           ? 0
-          : z
-              .string()
-              .regex(/^\d+$/)
-              .transform(Number)
-              .pipe(z.number().int().nonnegative().max(2147483647))
-              .parse(values.offset);
+          : parseOption(
+              'offset',
+              z
+                .string()
+                .regex(/^\d+$/)
+                .transform(Number)
+                .pipe(z.number().int().nonnegative().max(2147483647)),
+              values.offset
+            );
       result = await service.list(limit, offset);
     } else {
-      const id = z.uuid().parse(values.id);
+      const id = parseOption('id', z.uuid(), values.id);
       switch (command) {
         case 'get':
           result = await service.get(id);
@@ -150,7 +187,11 @@ async function main() {
         case 'reset-activation':
           result = await service.resetActivations(
             id,
-            installIdSchema.optional().parse(values.installId)
+            parseOption(
+              'installId',
+              installIdSchema.optional(),
+              values.installId
+            )
           );
           break;
       }
@@ -165,9 +206,13 @@ main().catch((error: unknown) => {
   if (error instanceof LicenseError) {
     console.error(`${error.code}: ${error.message}`);
   } else if (error instanceof z.ZodError) {
-    console.error(
-      'Invalid license options. Use --help for supported arguments.'
-    );
+    for (const issue of error.issues) {
+      const option = issue.path.length
+        ? `--${issue.path.map(String).join('.')}`
+        : 'options';
+      console.error(`Invalid ${option}: ${issue.message}`);
+    }
+    console.error('Use --help for supported arguments.');
   } else {
     // Database errors may contain parameters; never print the underlying exception.
     console.error(

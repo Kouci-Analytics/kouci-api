@@ -71,6 +71,15 @@ export function createLicensesRoutes(
       config: { rateLimit: { max: 10, timeWindow: '1 minute' } }
     };
 
+    /**
+     * @brief Activate a license using an activation code and installation ID.
+     * @param {string} activationCode - The activation code provided to the user.
+     * @param {string} installId - A unique identifier for the installation (e.g., device ID).
+     * @param {string} appVersion - The version of the application requesting activation.
+     * @returns {Promise<SignedLicense>} A promise that resolves to a signed license object.
+     * @throws {LicenseError} If the activation fails due to invalid input or license state.
+     * @throws {Error} For unexpected errors during the activation process.
+     */
     app.post('/activate', options, async (request, reply) => {
       const parsed = activationRequestSchema.safeParse(request.body);
       if (!parsed.success) {

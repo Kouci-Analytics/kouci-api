@@ -33,6 +33,32 @@ export const activationRequestSchema = z.strictObject({
     .regex(/^[0-9A-Za-z][0-9A-Za-z.+_-]*$/)
 });
 
+const isoExpirationSchema = z.iso.datetime({ offset: true });
+// Keep Unix dates within the four-digit year range supported by ISO input.
+const MAX_EXPIRATION_SECONDS = 253402300799;
+const expirationSchema = z
+  .string()
+  .trim()
+  .refine(
+    (value) => {
+      if (isoExpirationSchema.safeParse(value).success) return true;
+      const seconds = Number(value);
+      return (
+        /^\d+$/.test(value) &&
+        Number.isSafeInteger(seconds) &&
+        seconds >= 0 &&
+        seconds <= MAX_EXPIRATION_SECONDS
+      );
+    },
+    {
+      message:
+        'Expected an ISO 8601 timestamp with timezone or non-negative Unix seconds through year 9999 (not milliseconds).'
+    }
+  )
+  .transform(
+    (value) => new Date(/^\d+$/.test(value) ? Number(value) * 1000 : value)
+  );
+
 export const createLicenseSchema = z.strictObject({
   club: z.string().trim().min(1).max(200),
   plan: planSchema,
@@ -41,11 +67,7 @@ export const createLicenseSchema = z.strictObject({
   premiumReports: z.boolean().optional(),
   developerMode: z.boolean().optional(),
   customTheme: z.boolean().optional(),
-  expiresAt: z.iso
-    .datetime({ offset: true })
-    .transform((value) => new Date(value))
-    .nullable()
-    .default(null)
+  expiresAt: expirationSchema.nullable().default(null)
 });
 
 export const licensePayloadSchema = z.strictObject({

@@ -12,13 +12,18 @@ function main() {
     }
     throw new Error('This command takes no arguments.');
   }
+
+
   const { privateKey, publicKey } = generateKeyPairSync('ed25519');
+
   const privateKeyBase64 = privateKey
     .export({ format: 'der', type: 'pkcs8' })
     .toString('base64');
+
   const publicKeyBase64 = publicKey
     .export({ format: 'der', type: 'spki' })
     .toString('base64');
+    
   writeFileSync(
     '.env.license',
     [
