@@ -2,13 +2,16 @@ import Fastify from 'fastify';
 import { env } from './config/env.js';
 import { closeDb } from './db/index.js';
 import { configureApp, getFastifyOptions } from './create-app.js';
+import { assertLicenseConfiguration } from './modules/licenses/licenses.crypto.js';
 
 const app = configureApp(Fastify(getFastifyOptions()));
 
 async function start() {
   try {
+    assertLicenseConfiguration();
     await app.listen({
-      port: env.PORT
+      port: env.PORT,
+      host: env.HOST
     });
 
     const addressInfo = app.server.address();

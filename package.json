@@ -14,7 +14,17 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "license:keys": "node --import tsx src/scripts/license-keys.ts",
+    "license:public-key": "node --import tsx src/scripts/license-admin.ts public-key",
+    "license:create": "node --import tsx src/scripts/license-admin.ts create",
+    "license:list": "node --import tsx src/scripts/license-admin.ts list",
+    "license:get": "node --import tsx src/scripts/license-admin.ts get",
+    "license:disable": "node --import tsx src/scripts/license-admin.ts disable",
+    "license:enable": "node --import tsx src/scripts/license-admin.ts enable",
+    "license:revoke": "node --import tsx src/scripts/license-admin.ts revoke",
+    "license:reset-activation": "node --import tsx src/scripts/license-admin.ts reset-activation",
+    "license:verify": "node --import tsx src/scripts/license-verify.ts"
   },
   "engines": {
     "node": ">=24 <25"

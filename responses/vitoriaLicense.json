@@ -1,0 +1,16 @@
+{
+    "license": {
+        "version": 1,
+        "licenseId": "48766e1f-44c6-4348-a112-b0c97f483fe4",
+        "club": "Vitória SC",
+        "plan": "MVP_TESTER",
+        "installId": "2662c1af-f61a-47a4-bc59-082eed4e0b31",
+        "maxPlayers": 18,
+        "premiumReports": false,
+        "developerMode": false,
+        "customTheme": false,
+        "issuedAt": 1789743365,
+        "expiresAt": 1821275871
+    },
+    "signature": "bqX+m/E+TPZURsRQx1vMu+f9Xtx4WyjDVkmwVC82Qx+7/n+wQpz9neEL17u/hZ37EQKOiTX3MQSvsuaycJGjDw=="
+}
