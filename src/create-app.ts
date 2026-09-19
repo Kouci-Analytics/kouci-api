@@ -5,8 +5,17 @@ import { registerErrorHandler } from './plugins/error-handler.js';
 import { env } from './config/env.js';
 
 export function getFastifyOptions() {
+  // Vercel Functions are reached through Vercel's managed ingress, which sets
+  // forwarded headers. Trust only that immediate hop, not a caller-supplied chain.
+  // An explicit address allowlist still takes precedence for custom deployments.
+  const trustProxy = env.TRUSTED_PROXIES?.length
+    ? env.TRUSTED_PROXIES
+    : env.VERCEL === '1'
+      ? (_address: string, hop: number) => hop === 0
+      : false;
+
   return {
-    trustProxy: env.TRUSTED_PROXIES?.length ? env.TRUSTED_PROXIES : false,
+    trustProxy,
     logger: {
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
       redact: [
