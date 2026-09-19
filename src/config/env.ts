@@ -10,6 +10,7 @@ const envSchema = z.object({
     .default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   HOST: z.string().min(1).default('0.0.0.0'),
+  VERCEL: z.string().optional(),
   DATABASE_URL: z.string().url(),
   EMAIL_VERIFIER_API_URL: z.string().url().optional(),
   LICENSE_CODE_HASH_SECRET: z
